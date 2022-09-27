@@ -6,28 +6,26 @@ from django.db import models
 from app.manager import UserManager
 from app.views import validate_length
 
+
 class User(AbstractBaseUser):
     email = models.EmailField(max_length=254, unique=True)
     firstName = models.CharField(max_length=15, null=True)
     lastName = models.CharField(max_length=15, null=True)
     password = models.CharField(max_length=30)
-    username = models.CharField(max_length=10, unique=True)
-    mobileNo= models.CharField(max_length=10)
-    address = models.CharField(max_length=50)
-
+    username = models.CharField(
+        max_length=10, unique=True, primary_key=True, default="Not assigned")
+    mobileNo = models.CharField(max_length=10)
     confirm_password = models.CharField(max_length=30)
-    last_login = models.DateTimeField(null=True, blank=True,auto_now_add=True)
+    last_login = models.DateTimeField(null=True, blank=True, auto_now_add=True)
 
-
-    # TODO: Added later
-    session_token = models.CharField(max_length=10, default='0')
-
-    USERNAME_FIELD = 'username'
-    EMAIL_FIELD = 'email'
-    REQUIRED_FIELDS = []
-
-    objects = UserManager()
-
+    # # TODO: Added later
+    # session_token = models.CharField(max_length=10, default='0')
+    #
+    # USERNAME_FIELD = 'username'
+    # EMAIL_FIELD = 'email'
+    # REQUIRED_FIELDS = []
+    #
+    # objects = UserManager()
 
 
 # class Block(models.Model):
@@ -37,83 +35,85 @@ class User(AbstractBaseUser):
 
 class Flat(models.Model):
     id = models.IntegerField(primary_key=True)
-    name= models.CharField(max_length=50)
+    name = models.CharField(max_length=50)
     description = models.TextField()
     type = models.CharField(max_length=50)
     address = models.CharField(max_length=50)
     # blockId = models.ForeignKey(Block, on_delete=models.DO_NOTHING)
-    owner= models.ForeignKey(User,on_delete=models.DO_NOTHING)
-
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
 
 
 class Bill(models.Model):
-    id = models.IntegerField(primary_key=True,auto_created=True)
-    billTypes=[
-        ("water","water"),
-        ("electricity","electricity"),
-        ("maintenance","maintenance"),
-        ("others","others")
+    id = models.IntegerField(primary_key=True, auto_created=True)
+    billTypes = [
+        ("water", "water"),
+        ("electricity", "electricity"),
+        ("maintenance", "maintenance"),
+        ("others", "others")
     ]
-    type = models.CharField(choices=billTypes,default="electricity",max_length=20)
-    date= models.DateField(auto_now=True)
+    type = models.CharField(
+        choices=billTypes, default="electricity", max_length=20)
+    date = models.DateField(auto_now=True)
     description = models.CharField(max_length=50)
-    billNumber=models.IntegerField()
+    billNumber = models.IntegerField()
     # ownerId=models.ForeignKey(FlatOwner, on_delete=models.DO_NOTHING)
-    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING)
-    isPaid=models.BooleanField(default=False)
-    totalBill= models.IntegerField()
-
+    owner = models.ForeignKey(User, on_delete=models.DO_NOTHING, null=True)
+    isPaid = models.BooleanField(default=False)
+    totalBill = models.IntegerField()
 
 
 class Reciept(models.Model):
-    id= models.IntegerField(primary_key=True,auto_created=True)
+    id = models.IntegerField(primary_key=True, auto_created=True)
     description = models.TextField()
-    date= models.DateField(auto_now_add=True)
-    billId= models.ForeignKey(Bill,on_delete=models.DO_NOTHING)
-    paymentOptions=[
-        ("UPI","UPI"),
-         ("Cash","Cash"),
-          ("Card","Card"),
+    date = models.DateField(auto_now_add=True)
+    billId = models.ForeignKey(Bill, on_delete=models.DO_NOTHING)
+    paymentOptions = [
+        ("UPI", "UPI"),
+        ("Cash", "Cash"),
+        ("Card", "Card"),
     ]
-    paymentType= models.CharField(choices=paymentOptions,default="Cash",max_length=5)
-
+    paymentType = models.CharField(
+        choices=paymentOptions, default="Cash", max_length=5)
 
 
 class Roles(models.Model):
-
-    roleTypes={
-        'security':'Security',
-        'helper':'Helper',
-        'admin':'Admin',
-        'supervisor':'Supervisor'
-    }
-    id = models.CharField(choices=roleTypes,primary_key=True,default='helper')
-    name= models.CharField(max_length=50)
+    # roleId= models.AutoField(primary_key=True,auto_created=True)
+    roleTypes = [
+        ("Security", "Security"),
+        ("Helper", "Helper"),
+        ("Admin", "Admin"),
+        ("Supervisor", "Supervisor")
+    ]
+    role = models.CharField(choices=roleTypes, default="Helper", max_length=10)
+    name = models.CharField(max_length=50)
     description = models.TextField()
+
+    def __str__(self):
+        return self.role
 
 
 class Employees(models.Model):
-    id = models.IntegerField(primary_key=True)
-    name= models.CharField(max_length=50)
+    id = models.AutoField(primary_key=True)
+    name = models.CharField(max_length=50)
     mobileNo = models.CharField(max_length=10)
-    email = models.EmailField(max_length=50,unique=True)
-    address= models.CharField(max_length=50)
-    roleId= models.ForeignKey(Roles, on_delete=models.CASCADE,many=True)
+    email = models.EmailField(max_length=50, unique=True)
+    address = models.CharField(max_length=50)
+    roleId = models.ForeignKey(Roles, on_delete=models.DO_NOTHING)
     password = models.CharField(max_length=15)
     isAdmin = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.name
 
 
 class Visitors(models.Model):
     id = models.IntegerField(primary_key=True)
-    flatId= models.ForeignKey(Flat, on_delete=models.DO_NOTHING)
-    time= models.DateTimeField(auto_now_add=True)
-    reason= models.CharField(max_length=50)
+    flatId = models.ForeignKey(Flat, on_delete=models.DO_NOTHING)
+    time = models.DateTimeField(auto_now_add=True)
+    reason = models.CharField(max_length=50)
     name = models.CharField(max_length=50)
 
 
 class FlatServicedByEmployees(models.Model):
-    employeeId=models.ForeignKey(Employees,on_delete=models.DO_NOTHING)
+    employeeId = models.ForeignKey(Employees, on_delete=models.DO_NOTHING)
     flatId = models.ForeignKey(Flat, on_delete=models.DO_NOTHING)
-
-
-
