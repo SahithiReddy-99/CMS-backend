@@ -119,3 +119,9 @@ class Visitors(models.Model):
 class FlatServicedByEmployees(models.Model):
     employeeId = models.ForeignKey(Employees, on_delete=models.DO_NOTHING)
     flatId = models.ForeignKey(Flat, on_delete=models.DO_NOTHING)
+
+
+class Reviews(models.Model):
+    reviews = models.TextField()
+    username = models.ForeignKey(User, on_delete=models.CASCADE)
+
