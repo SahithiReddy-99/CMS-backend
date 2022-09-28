@@ -122,6 +122,9 @@ class FlatServicedByEmployees(models.Model):
 
 
 class Reviews(models.Model):
+    title = models.CharField(max_length=255, blank=True)
     reviews = models.TextField()
     username = models.ForeignKey(User, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.title
