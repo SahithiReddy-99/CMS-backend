@@ -16,16 +16,18 @@ class User(AbstractBaseUser):
         max_length=10, unique=True, primary_key=True, default="Not assigned")
     mobileNo = models.CharField(max_length=10)
     confirm_password = models.CharField(max_length=30)
+    occupation = models.CharField(max_length=30, blank=True, null=True)
     last_login = models.DateTimeField(null=True, blank=True, auto_now_add=True)
+    image = models.ImageField(upload_to='pictures', default=None, blank=True)
 
     # # TODO: Added later
     # session_token = models.CharField(max_length=10, default='0')
-    #
-    # USERNAME_FIELD = 'username'
-    # EMAIL_FIELD = 'email'
+
+    USERNAME_FIELD = 'username'
+    EMAIL_FIELD = 'email'
     # REQUIRED_FIELDS = []
-    #
-    # objects = UserManager()
+
+    objects = UserManager()
 
 
 # class Block(models.Model):
