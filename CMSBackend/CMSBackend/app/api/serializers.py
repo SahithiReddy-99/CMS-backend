@@ -1,5 +1,6 @@
+
 from rest_framework import serializers
-from app.models import User, Flat, Bill, Reciept, Roles, Block, Visitors
+from app.models import User, Flat, Bill, Reciept, Roles, Block, Visitors,Reviews
 
 class RegistrationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -79,3 +80,10 @@ class VisitorSerializer(serializers.ModelSerializer):
 class EmployeeServicesSerializer(serializers.ModelSerializer):
     employeeId = User()
     flatId = FlatSerializer(read_only=True, many=True)
+
+class ReviewSerializer(serializers.ModelSerializer):
+    userId=User()
+
+    class Meta:
+        model = Reviews
+        fields = "__all__"

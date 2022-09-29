@@ -1,7 +1,9 @@
+from distutils import errors
 import json
+
 from django.contrib import messages, auth
-from app.models import User, Roles
-from app.api.serializers import FlatOwnerSerializer, RegistrationSerializer
+from app.models import User, Roles,Reviews
+from app.api.serializers import FlatOwnerSerializer, RegistrationSerializer,ReviewSerializer
 from django.http import Http404, QueryDict
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -169,3 +171,34 @@ class FlatOwnerDetailsAV(APIView):
         #     messages.success(request, 'Employee is now registered and can log in')
         #     return Response(  {"Success": "Employee is now registered and can log in"}, status=status.HTTP_201_CREATED)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ReviewsAV(APIView):
+    def get(self, request, format=None):
+        owners = Reviews.objects.all()
+        serializer = ReviewSerializer(owners, many=True)
+        return Response(serializer.data)
+
+    def post(self, request, format=None):
+        serializer = ReviewSerializer(data=request.data)
+        # password=request.data.get('password')
+        # confirm_password=request.data.get('confirm_password')
+        # email=request.data.get('email')
+        if serializer.is_valid():
+               serializer.save()
+               return Response(  {"Success": "You review is now added"}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class FilterReviewsAV(APIView):
+    
+    def post(self, request, format=None):
+        
+        user_email=request.data.get('email')
+        user=User.objects.filter(email=user_email)
+        response=Reviews.objects.filter(email=user)
+        response=json.dumps(response)
+        response=json.loads(response)
+        if response:
+            return JsonResponse(response)
+        return Response("failed",status=404)

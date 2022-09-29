@@ -53,8 +53,8 @@ class User(AbstractBaseUser):
 
     objects = UserManager()
 
-    def __str__(self):
-        return self.firstName + ' ' + self.lastName + ' ' + self.user_type
+    # def __str__(self):
+    #     return self.firstName + ' ' + self.lastName + ' ' + self.user_type
 
 
 class Block(models.Model):
