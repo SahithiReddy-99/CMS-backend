@@ -1,17 +1,32 @@
 from rest_framework import serializers
-from app.models import User, Flat, Bill, Reciept, Roles, Employees, Visitors
+from app.models import User, Flat, Bill, Reciept, Roles, Block, Visitors
 
+class RegistrationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = "__all__"
+        extra_kwargs = {
+            'password': {'write_only': True}
+        }
+
+    def create(self, validated_data):
+        password = validated_data.pop('password', None)
+        instance = self.Meta.model(**validated_data)
+        if password is not None:
+            instance.set_password(password)
+        instance.save()
+        return instance
 
 class FlatOwnerSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['firstName', 'mobileNo', 'email', 'username']
+        fields = ['firstName', 'mobileNo', 'email', 'occupation']
 
 
-# class BlockSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = Block
-#         fields = ['id', 'name', 'description']
+class BlockSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Block
+        fields = [ 'name', 'description']
 
 
 class FlatSerializer(serializers.ModelSerializer):
@@ -45,12 +60,12 @@ class RolesSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-class EmployeesSerializer(serializers.ModelSerializer):
-    # roleId = RolesSerializer(read_only=True)
-
-    class Meta:
-        model = Employees
-        fields = "__all__"
+# class EmployeesSerializer(serializers.ModelSerializer):
+#     # roleId = RolesSerializer(read_only=True)
+#
+#     class Meta:
+#         model = Employees
+#         fields = "__all__"
 
 
 class VisitorSerializer(serializers.ModelSerializer):
@@ -62,5 +77,5 @@ class VisitorSerializer(serializers.ModelSerializer):
 
 
 class EmployeeServicesSerializer(serializers.ModelSerializer):
-    employeeId = EmployeesSerializer(read_only=True, many=True)
+    employeeId = User()
     flatId = FlatSerializer(read_only=True, many=True)
